@@ -21,3 +21,41 @@
 #       MA 02110-1301, USA.
 
 import midi
+
+
+class Track:
+  """Represents a monophonic MIDI track."""
+  def __init__(self, bpm=120):
+    self.pattern = midi.Pattern()  # MIDI pattern (contains a list of tracks)
+    self.track = midi.Track()  # MIDI track (contains list of MIDI events)
+    self.pattern.append(self.track)
+    tempo = midi.SetTempoEvent(tick=0)
+    tempo.set_bpm(bpm)
+    self.track.append(tempo)
+
+  def add_note(self):
+    # Instantiate a MIDI note on event, append it to the track
+    on = midi.NoteOnEvent(tick=0, velocity=10, pitch=midi.G_3)
+    self.track.append(on)
+    # Instantiate a MIDI note off event, append it to the track
+    off = midi.NoteOffEvent(tick=100, pitch=midi.G_3)
+    self.track.append(off)
+
+  def render(self):
+    # Add the end of track event, append it to the track
+    eot = midi.EndOfTrackEvent(tick=1)
+    self.track.append(eot)
+    # Print out the pattern
+    print self.pattern
+    # Save the pattern to disk
+    midi.write_midifile("example.mid", self.pattern)
+
+
+def main():
+  track = Track()
+  track.add_note()
+  track.render()
+
+
+if __name__ == "__main__":
+  main()
